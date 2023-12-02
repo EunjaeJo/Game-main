@@ -15,6 +15,8 @@ public class GameUser {
     Image img;
     Toolkit tk = Toolkit.getDefaultToolkit();
     private int posX, posY;
+    private int initialX = 85;
+    private int initialY = 85;
     private int width, height = 64;
     private int coin;
     private int sun;
@@ -22,17 +24,22 @@ public class GameUser {
     public GameUser(Member member) {
         this.member = member;
         this.nickName = member.getNickName();
+        posX = initialX;
+        posY = initialY;
     }
 
     public GameUser(Member member, Image img) {
         this.member = member;
         this.nickName = member.getNickName();
         this.img = img;
+        posX = initialX;
+        posY = initialY;
     }
 
     /**
      * 방에 입장시킴
-     * @param room  입장할 방
+     *
+     * @param room 입장할 방
      */
     public void enterRoom(GameRoom room) {
         this.room = room;

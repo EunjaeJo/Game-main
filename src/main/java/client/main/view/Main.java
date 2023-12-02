@@ -23,16 +23,16 @@ public class Main extends JFrame {
         Member m1 = new Member("a", "a", "a");
         Member m2 = new Member("b", "a", "b");
         Member m3 = new Member("c", "a", "c");
-        Member m4 = new Member("d", "a", "d");
+//        Member m4 = new Member("d", "a", "d");
         GameUser g1 = new GameUser(m1);
         GameUser g2 = new GameUser(m2);
         GameUser g3 = new GameUser(m3);
-        GameUser g4 = new GameUser(m4);
+//        GameUser g4 = new GameUser(m4);
         ArrayList<GameUser> users = new ArrayList<>();
         users.add(g1);
         users.add(g2);
         users.add(g3);
-        users.add(g4);
+//        users.add(g4);
 
         // MainMapView 객체 생성
         MainMapView mainMapView = new MainMapView(users, RoomManager.createRoom());

@@ -31,6 +31,8 @@ public class MainMapView extends JPanel implements Runnable {
 
     Image background_ = tk.getImage("SOURCE/bg0.png"); // 배경화면;
     Image planetImages[] = new Image[16];
+    String playerImgPath = "SOURCE/Players/playerImg"; // 플레이어 이미지들 경로
+    Image playerImages[] = new Image[3];
     int scaledWidth = 800;
     int scaledHeight = 800;
     Image background = background_.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
@@ -39,6 +41,7 @@ public class MainMapView extends JPanel implements Runnable {
     // 각 노드별 코인 정보 저장 배열
     int[] coinInfo = {3, -3, 3, 3, -3, 3, 3, 3, -3, 3, 3, 3, -3, 3, -3, 3};
 
+    // 주사위 객체 생성
     Dice dice = new Dice();
 
     GameRoom room;
@@ -51,10 +54,22 @@ public class MainMapView extends JPanel implements Runnable {
         setVisible(true);
 
         this.users = users;
+
+        // 플레이어 이미지들 저장 (플레이어 수: 3)
+        for (int i = 0; i < 3; i++) {
+            GameUser u = users.get(i);
+            String imagePath = playerImgPath + (i + 1) + ".png";
+            Image image = tk.getImage(imagePath);
+            playerImages[i] = resizeImage(image, 64, 64);
+            u.setImg(playerImages[i]);
+        }
+
         this.room = room;
         this.checkExit = false;
         turnPlayer = room.getGameOwner(); // 게임 시작시 방장부터 시작
         turnInfo.put(0, 0);
+
+
 
         //플레이어 키 입력 스레드
 //        KeyControl key = new KeyControl(turnPlayer, this);
@@ -74,7 +89,7 @@ public class MainMapView extends JPanel implements Runnable {
 
         // 행성 노드 생성 및 추가
         for (int i = 0; i < 16; i++) {
-            String path = "SOURCE/planet" + ((i % 9) + 1)+ ".png";
+            String path = "SOURCE/planet" + ((i % 9) + 1) + ".png";
             Image img = tk.getImage(path);
             planetImages[i] = resizeImage(img, 70, 70);
         }
@@ -101,8 +116,7 @@ public class MainMapView extends JPanel implements Runnable {
                     int y = startY + row * (gridSize + gap);
                     //g.drawImage(planetImages[index], x, y, gridSize, gridSize, null);
                     nodes.add(new PlanetNode(index + 1, x, y, planetImages[index], coinInfo[index]));
-                }
-                else {
+                } else {
                     int x = startX + 4 * (gridSize + gap);
                     int y = startY + row * (gridSize + gap);
                     //g.drawImage(planetImages[index], x, y, gridSize, gridSize, null);
@@ -137,7 +151,7 @@ public class MainMapView extends JPanel implements Runnable {
         buffG = buffImg.getGraphics();
         update(buffG);
         g.drawImage(buffImg, 0, 0, this);
-        if(turnInfo.size() >= 17 && turnInfo.get(16) >= 4) {
+        if (turnInfo.size() >= 17 && turnInfo.get(16) >= 4) {
             return;
         }
     }
@@ -157,22 +171,22 @@ public class MainMapView extends JPanel implements Runnable {
     }
 
     private void drawNodes(Graphics g) {
-        for(int i = 0; i < nodes.size(); i++) {
+        for (int i = 0; i < nodes.size(); i++) {
             PlanetNode node = nodes.get(i);
             buffG.drawImage(node.getImg(), node.getPosX(), node.getPosY(), this);
         }
     }
 
     private void drawBackground(Graphics g) {
-        buffG.clearRect(0,0, frameWidth, frameHeight);
+        buffG.clearRect(0, 0, frameWidth, frameHeight);
         buffG.drawImage(background, 0, 0, this);
     }
 
     @Override
     public void run() {
         // 게임 진행시 main 스레드를 join으로 묶어둔다.
-        while(true) {
-            if(this.checkExit == true)
+        while (true) {
+            if (this.checkExit == true)
                 break;
             else {
                 System.out.println("");
