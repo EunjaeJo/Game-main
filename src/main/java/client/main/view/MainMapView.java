@@ -18,6 +18,8 @@ import java.util.HashMap;
 
 public class MainMapView extends JPanel implements Runnable {
 
+    private int currentIndex; // 노드 이동 갱신용
+
     int frameWidth = 800; // Panel 폭
     int frameHeight = 800; // Panel 넓이
     int gridSize = 70; // 각 이미지의 크기
@@ -69,12 +71,28 @@ public class MainMapView extends JPanel implements Runnable {
         return null;
     }
 
-    // 주사위 결과에 따라 플레이어 이동 처리
-    public void handleMoveToNode(GameUser player) {
-        int diceResult = dice.getDiceResult();
-        PlanetNode targetNode = calculateTargetNode(player, diceResult);
-        player.moveToNode(targetNode); // 타겟노드로 직접 이동
-        repaint();
+    // while 타겟 노드가 아닌 동안 중간 노드로 이동 -> repaint 메서드 짜기 (이동 모션)
+    public void moveNoneTargetNodes(GameUser player, PlanetNode targetNode) {
+        List<PlanetNode> nonTargetNodes = getNonTargetNodes(player.getCurrentNode(), targetNode);
+        currentIndex = 0;
+
+        Timer timer = new Timer(300, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                player.moveToNode(nonTargetNodes.get(currentIndex));
+                repaint();
+
+                if (currentIndex == nonTargetNodes.size() - 1) {
+                    ((Timer) e.getSource()).stop();
+                    player.moveToNode(targetNode);
+                    repaint();
+                } else {
+                    currentIndex++;
+                }
+            }
+        });
+
+        timer.start();
     }
 
     // 플레이어가 밟아갈 중간 노드들을 가져오는 메서드
@@ -85,22 +103,29 @@ public class MainMapView extends JPanel implements Runnable {
         int startNodeId = startNode.getId();
         int targetNodeId = targetNode.getId();
 
-        // 시계 방향으로 노드를 가져오는 예시
-        if (startNodeId <= targetNodeId) {
-            for (int nodeId = startNodeId; nodeId < targetNodeId; nodeId++) {
+        // 시계 방향으로 노드를 가져오는 경우
+        if (startNodeId < targetNodeId) {
+            for (int nodeId = startNodeId + 1; nodeId <= targetNodeId; nodeId++) {
                 nonTargetNodes.add(findNodeById(nodeId));
             }
         } else {
-            // 반시계 방향으로 노드를 가져오는 예시
-            for (int nodeId = startNodeId; nodeId <= 16; nodeId++) {
+            // 반시계 방향으로 노드를 가져오는 경우(16번 -> 1번 노드 이동 시)
+            for (int nodeId = startNodeId + 1; nodeId <= 16; nodeId++) {
                 nonTargetNodes.add(findNodeById(nodeId));
             }
-            for (int nodeId = 1; nodeId < targetNodeId; nodeId++) {
+            for (int nodeId = 1; nodeId <= targetNodeId; nodeId++) {
                 nonTargetNodes.add(findNodeById(nodeId));
             }
         }
 
         return nonTargetNodes;
+    }
+
+    // 주사위 결과에 따라 플레이어 이동 처리(최종적으로 처리하는 부분)
+    public void handleMoveToNode(GameUser player) {
+        int diceResult = dice.getDiceResult();
+        PlanetNode targetNode = calculateTargetNode(player, diceResult);
+        moveNoneTargetNodes(player, targetNode);
     }
 
 
@@ -130,7 +155,6 @@ public class MainMapView extends JPanel implements Runnable {
         MouseControl mouse = new MouseControl(turnPlayer, this);
         th = new Thread(mouse);
         th.start();
-
 
         // 테두리 이미지 배치
         int totalSize = gridSize * gridCount + gap * (gridCount - 1);
