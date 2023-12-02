@@ -48,6 +48,8 @@ public class GameUser {
         return room;
     }
 
+    public void moveNode() {}
+
     public int getId() {
         return id;
     }

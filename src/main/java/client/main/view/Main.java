@@ -43,6 +43,7 @@ public class Main extends JFrame {
         getContentPane().add(mainMapView);
         setLocationRelativeTo(null);
         setVisible(true);
+        setLayout(null);
 
         // 스레드 시작
         new Thread(mainMapView).start();

@@ -23,6 +23,7 @@ public class MainMapView extends JPanel implements Runnable {
     int gridCount = 5;  // 격자의 행과 열 개수
     int gap = 50;       // 이미지 간격
 
+    Dice dice; // 주사위 객체 생성
     Member member; // 멤버 정보 받아오기
     GameUser user; // 플레이어 정보 받아오기
     Thread th; // KeyAdapter 쓰레드
@@ -32,9 +33,6 @@ public class MainMapView extends JPanel implements Runnable {
     Toolkit tk = Toolkit.getDefaultToolkit();
     Image buffImg;
     Graphics buffG;
-
-    // 주사위 객체 생성
-    Dice dice = new Dice();
 
     Image background_ = tk.getImage("SOURCE/bg0.png"); // 배경화면;
     Image planetImages[] = new Image[16];
@@ -83,6 +81,7 @@ public class MainMapView extends JPanel implements Runnable {
         MouseControl mouse = new MouseControl(turnPlayer, this);
         th = new Thread(mouse);
         th.start();
+
 
         // 테두리 이미지 배치
         int totalSize = gridSize * gridCount + gap * (gridCount - 1);
@@ -138,14 +137,19 @@ public class MainMapView extends JPanel implements Runnable {
             nodes.add(new PlanetNode(col + 1, x, y, planetImages[0 + (col - 10)], coinInfo[index]));
         }
 
-        // 마우스 이벤트 리스너
-        addMouseListener(mouse);
+
+//         // 마우스 이벤트 리스너
+//        addMouseListener(mouse);
+
+// 주사위 패널 생성 및 설정
+        dice = new Dice();
 
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 // 마우스 클릭 시 주사위를 굴린다.
                 dice.startRolling();
+                dice.rollDice();
 
                 // 1초 후 주사위 멈춤 (1000ms = 1초)
                 Timer stopTimer = new Timer(1000, new ActionListener() {
@@ -159,6 +163,8 @@ public class MainMapView extends JPanel implements Runnable {
                 stopTimer.start();
             }
         });
+        dice.setBounds(370, 370, 64, 64);
+        add(dice);
 
     }
 
@@ -177,7 +183,9 @@ public class MainMapView extends JPanel implements Runnable {
         if (turnInfo.size() >= 17 && turnInfo.get(16) >= 4) {
             return;
         }
+        repaint();
         g.drawImage(dice.getImage(), 370, 370, 64, 64, this); // 주사위 그림
+
     }
 
     // 요소들 그림
