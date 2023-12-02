@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 
 public class MainMapView extends JPanel implements Runnable {
@@ -48,27 +49,75 @@ public class MainMapView extends JPanel implements Runnable {
 
     GameRoom room;
     ArrayList<GameUser> users = new ArrayList<>();
+
     GameUser turnPlayer; //현재 자신의 차례인 플레이어
     HashMap<Integer, Integer> turnInfo = new HashMap<>(); // key : 현재 턴 값 value : 해당 턴 주사위 던진 플레이어 수
 
+    // 주사위 결과에 따라 이동할 타겟 노드 계산
+    private PlanetNode calculateTargetNode(GameUser player, int diceResult) {
+        int targetNodeId = (player.getCurrentNode().getId() + diceResult - 1) % 16 + 1;
+        return findNodeById(targetNodeId);
+    }
+
+    // 노드 ID로 노드를 찾는 메서드
+    private PlanetNode findNodeById(int nodeId) {
+        for (PlanetNode node : nodes) {
+            if (node.getId() == nodeId) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    // 주사위 결과에 따라 플레이어 이동 처리
+    public void handleMoveToNode(GameUser player) {
+        int diceResult = dice.getDiceResult();
+        PlanetNode targetNode = calculateTargetNode(player, diceResult);
+        player.moveToNode(targetNode); // 타겟노드로 직접 이동
+        repaint();
+    }
+
+    // 플레이어가 밟아갈 중간 노드들을 가져오는 메서드
+    private List<PlanetNode> getNonTargetNodes(PlanetNode startNode, PlanetNode targetNode) {
+        List<PlanetNode> nonTargetNodes = new ArrayList<>();
+
+        // 시작 노드부터 타겟 노드까지의 모든 중간 노드를 가져옴
+        int startNodeId = startNode.getId();
+        int targetNodeId = targetNode.getId();
+
+        // 시계 방향으로 노드를 가져오는 예시
+        if (startNodeId <= targetNodeId) {
+            for (int nodeId = startNodeId; nodeId < targetNodeId; nodeId++) {
+                nonTargetNodes.add(findNodeById(nodeId));
+            }
+        } else {
+            // 반시계 방향으로 노드를 가져오는 예시
+            for (int nodeId = startNodeId; nodeId <= 16; nodeId++) {
+                nonTargetNodes.add(findNodeById(nodeId));
+            }
+            for (int nodeId = 1; nodeId < targetNodeId; nodeId++) {
+                nonTargetNodes.add(findNodeById(nodeId));
+            }
+        }
+
+        return nonTargetNodes;
+    }
+
+
+    /**
+     * 생성자 함수
+     */
     public MainMapView(ArrayList<GameUser> users, GameRoom room) {
         setSize(frameWidth, frameHeight);
         setVisible(true);
 
         this.users = users;
 
-        // 플레이어 이미지들 저장 (플레이어 수: 3)
-        for (int i = 0; i < 3; i++) {
-            GameUser u = users.get(i);
-            String imagePath = playerImgPath + (i + 1) + ".png";
-            Image image = tk.getImage(imagePath);
-            playerImages[i] = resizeImage(image, 64, 64);
-            u.setImg(playerImages[i]);
-        }
-
         this.room = room;
         this.checkExit = false;
-        turnPlayer = room.getGameOwner(); // 게임 시작시 방장부터 시작
+//        turnPlayer = room.getGameOwner(); // 게임 시작시 방장부터 시작
+        // (테스트) 임의의 현재 플레이어: users의 첫 번째 플레이어
+        turnPlayer = users.get(0);
         turnInfo.put(0, 0);
 
 
@@ -137,6 +186,29 @@ public class MainMapView extends JPanel implements Runnable {
             nodes.add(new PlanetNode(col + 1, x, y, planetImages[0 + (col - 10)], coinInfo[index]));
         }
 
+        // 노드 넘버링 수정
+        nodes.get(5).setId(16);
+        nodes.get(7).setId(15);
+        nodes.get(9).setId(14);
+        nodes.get(11).setId(13);
+        nodes.get(13).setId(11);
+        nodes.get(14).setId(10);
+        nodes.get(15).setId(9);
+        nodes.get(10).setId(8);
+        nodes.get(8).setId(7);
+
+
+        // 플레이어별 이미지 설정 및 현재 노드 초기화 (플레이어 수: 3)
+        for (int i = 0; i < 3; i++) {
+            GameUser u = users.get(i);
+            PlanetNode node = nodes.get(i);
+            String imagePath = playerImgPath + (i + 1) + ".png";
+            Image image = tk.getImage(imagePath);
+            playerImages[i] = resizeImage(image, 64, 64);
+            u.setImg(playerImages[i]);
+            u.setCurrentNode(node); // 현재 노드 첫 번째 노드로 초기화
+        }
+
 
 //         // 마우스 이벤트 리스너
 //        addMouseListener(mouse);
@@ -156,7 +228,9 @@ public class MainMapView extends JPanel implements Runnable {
                     @Override
                     public void actionPerformed(ActionEvent evt) {
                         dice.stopRolling();
-                        // 주사위 멈춘 후 다른 로직 추가 가능 (주사위 결과에 따라 특정 동작 수행 등)
+
+                        // 주사위 멈춘 후 주사위 결과에 따라 플레이어 이동 처리
+                        handleMoveToNode(turnPlayer);
                     }
                 });
                 stopTimer.setRepeats(false); // 타이머 한 번만 실행

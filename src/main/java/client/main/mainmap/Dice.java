@@ -65,7 +65,7 @@ public class Dice extends JPanel {
         System.out.println("주사위 멈춤. 결과: " + currentDiceResult);
     }
 
-    public int getCurrentDiceResult() {
+    public int getDiceResult() {
         return currentDiceResult;
     }
 }
