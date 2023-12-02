@@ -11,10 +11,10 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MainMapView extends JFrame implements Runnable {
+public class MainMapView extends JPanel implements Runnable {
 
-    int frameWidth = 800; // JFrame 폭
-    int frameHeight = 800; // JFrame 넓이
+    int frameWidth = 800; // Panel 폭
+    int frameHeight = 800; // Panel 넓이
     int gridSize = 70; // 각 이미지의 크기
     int gridCount = 5;  // 격자의 행과 열 개수
     int gap = 70;       // 이미지 간격
@@ -47,6 +47,9 @@ public class MainMapView extends JFrame implements Runnable {
     HashMap<Integer, Integer> turnInfo = new HashMap<>(); // key : 현재 턴 값 value : 해당 턴 주사위 던진 플레이어 수
 
     public MainMapView(ArrayList<GameUser> users, GameRoom room) {
+        setSize(frameWidth, frameHeight);
+        setVisible(true);
+
         this.users = users;
         this.room = room;
         this.checkExit = false;
@@ -76,6 +79,7 @@ public class MainMapView extends JFrame implements Runnable {
             planetImages[i] = resizeImage(img, 70, 70);
         }
 
+        // 노드 index 0~4
         for (int row = 0; row < gridCount; row++) {
             for (int col = 0; col < gridCount; col++) {
                 int index = row * gridCount + col;
@@ -87,7 +91,8 @@ public class MainMapView extends JFrame implements Runnable {
                 }
             }
         }
-        // index 5 ~ 10
+
+        // 노드 index 5 ~ 10
         int index = 5;
         for (int row = 1; row < 4; row++) {
             for (int col = 0; col < 2; col++) {
@@ -107,6 +112,7 @@ public class MainMapView extends JFrame implements Runnable {
             }
         }
 
+        // 노드 index 11~15
         int dist = 0;
         for (int col = 11; col < 16; col++) {
             int x = startX + dist++ * (gridSize + gap);
@@ -115,16 +121,8 @@ public class MainMapView extends JFrame implements Runnable {
             nodes.add(new PlanetNode(col + 1, x, y, planetImages[0 + (col - 10)], coinInfo[index]));
         }
 
-        // Frame 설정
-//        addKeyListener(key);
+        // 마우스 이벤트 리스너
         addMouseListener(mouse);
-        setTitle("mini game: meteor shooter");
-        // 창을 닫을 때 프로그램 종료 설정
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
-        setSize(frameWidth, frameHeight);
-        setLocationRelativeTo(null);
-        setVisible(true);
     }
 
     // 이미지 크기 조절 메서드
@@ -132,8 +130,9 @@ public class MainMapView extends JFrame implements Runnable {
         return originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
     }
 
-    public void paint(Graphics g) {
-        super.paint(g);
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
         buffImg = createImage(getWidth(), getHeight());
         buffG = buffImg.getGraphics();
         update(buffG);
@@ -143,6 +142,7 @@ public class MainMapView extends JFrame implements Runnable {
         }
     }
 
+    // 요소들 그림
     public void update(Graphics g) {
         drawBackground(g);
         drawNodes(g);

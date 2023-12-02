@@ -25,6 +25,14 @@ public class PlanetNode extends Unit {
         return id;
     }
 
+    public int getCoin() {
+        return coin;
+    }
+
+    public int getX() { return posX; }
+
+    public int getY() { return posY; }
+
     public void setSun(boolean change) { // 메인에서 랜덤 돌려서 나온 노드에 sun 위치시킴
         sun = true;
     }

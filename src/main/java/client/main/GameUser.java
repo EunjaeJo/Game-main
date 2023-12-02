@@ -14,16 +14,20 @@ public class GameUser {
     private int enteredCode;
     Image img;
     Toolkit tk = Toolkit.getDefaultToolkit();
-    int posX;
-    int posY;
-    int width;
-    int height;
+    private int posX, posY;
+    private int width, height = 64;
     private int coin;
     private int sun;
 
     public GameUser(Member member) {
         this.member = member;
         this.nickName = member.getNickName();
+    }
+
+    public GameUser(Member member, Image img) {
+        this.member = member;
+        this.nickName = member.getNickName();
+        this.img = img;
     }
 
     /**
