@@ -8,6 +8,10 @@ import client.main.object.PlanetNode;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -17,7 +21,7 @@ public class MainMapView extends JPanel implements Runnable {
     int frameHeight = 800; // Panel 넓이
     int gridSize = 70; // 각 이미지의 크기
     int gridCount = 5;  // 격자의 행과 열 개수
-    int gap = 70;       // 이미지 간격
+    int gap = 50;       // 이미지 간격
 
     Member member; // 멤버 정보 받아오기
     GameUser user; // 플레이어 정보 받아오기
@@ -28,6 +32,9 @@ public class MainMapView extends JPanel implements Runnable {
     Toolkit tk = Toolkit.getDefaultToolkit();
     Image buffImg;
     Graphics buffG;
+
+    // 주사위 객체 생성
+    Dice dice = new Dice();
 
     Image background_ = tk.getImage("SOURCE/bg0.png"); // 배경화면;
     Image planetImages[] = new Image[16];
@@ -40,9 +47,6 @@ public class MainMapView extends JPanel implements Runnable {
     ArrayList<PlanetNode> nodes = new ArrayList<>();
     // 각 노드별 코인 정보 저장 배열
     int[] coinInfo = {3, -3, 3, 3, -3, 3, 3, 3, -3, 3, 3, 3, -3, 3, -3, 3};
-
-    // 주사위 객체 생성
-    Dice dice = new Dice();
 
     GameRoom room;
     ArrayList<GameUser> users = new ArrayList<>();
@@ -70,7 +74,6 @@ public class MainMapView extends JPanel implements Runnable {
         turnInfo.put(0, 0);
 
 
-
         //플레이어 키 입력 스레드
 //        KeyControl key = new KeyControl(turnPlayer, this);
 //        th = new Thread(key);
@@ -89,7 +92,7 @@ public class MainMapView extends JPanel implements Runnable {
 
         // 행성 노드 생성 및 추가
         for (int i = 0; i < 16; i++) {
-            String path = "SOURCE/planet" + ((i % 9) + 1) + ".png";
+            String path = "SOURCE/Planets/planet" + ((i % 9) + 1) + ".png";
             Image img = tk.getImage(path);
             planetImages[i] = resizeImage(img, 70, 70);
         }
@@ -137,6 +140,26 @@ public class MainMapView extends JPanel implements Runnable {
 
         // 마우스 이벤트 리스너
         addMouseListener(mouse);
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // 마우스 클릭 시 주사위를 굴린다.
+                dice.startRolling();
+
+                // 1초 후 주사위 멈춤 (1000ms = 1초)
+                Timer stopTimer = new Timer(1000, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent evt) {
+                        dice.stopRolling();
+                        // 주사위 멈춘 후 다른 로직 추가 가능 (주사위 결과에 따라 특정 동작 수행 등)
+                    }
+                });
+                stopTimer.setRepeats(false); // 타이머 한 번만 실행
+                stopTimer.start();
+            }
+        });
+
     }
 
     // 이미지 크기 조절 메서드
@@ -154,6 +177,7 @@ public class MainMapView extends JPanel implements Runnable {
         if (turnInfo.size() >= 17 && turnInfo.get(16) >= 4) {
             return;
         }
+        g.drawImage(dice.getImage(), 370, 370, 64, 64, this); // 주사위 그림
     }
 
     // 요소들 그림

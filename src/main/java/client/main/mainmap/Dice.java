@@ -16,12 +16,12 @@ public class Dice extends JLabel {
 
         // 주사위 이미지 경로 배열 (1부터 6까지)
         String[] imagePaths = {
-                "src/main/java/client/main/mainmap/img/dice1.png",
-                "src/main/java/client/main/mainmap/img/dice2.png",
-                "src/main/java/client/main/mainmap/img/dice3.png",
-                "src/main/java/client/main/mainmap/img/dice4.png",
-                "src/main/java/client/main/mainmap/img/dice5.png",
-                "src/main/java/client/main/mainmap/img/dice6.png"
+                "SOURCE/Dice/dice1.png",
+                "SOURCE/Dice/dice2.png",
+                "SOURCE/Dice/dice3.png",
+                "SOURCE/Dice/dice4.png",
+                "SOURCE/Dice/dice5.png",
+                "SOURCE/Dice/dice6.png"
         };
 
         diceIcons = new ImageIcon[6];
