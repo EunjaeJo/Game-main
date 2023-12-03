@@ -16,9 +16,10 @@ public class PlanetNode extends Unit {
         this.coin = coin;
     }
 
-    public PlanetNode(int id, int coin) { // 노드마다 지정된 코인 수가 존재함 -> 생성할 때 설정
-        this.id = id;
-        this.coin = coin;
+    public PlanetNode(int x, int y, Image img) {
+        this.posX = x;
+        this.posY = y;
+        this.img = img;
     }
 
     public int getId() {

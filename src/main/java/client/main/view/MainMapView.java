@@ -57,7 +57,7 @@ public class MainMapView extends JPanel implements Runnable {
 
     // 주사위 결과에 따라 이동할 타겟 노드 계산
     private PlanetNode calculateTargetNode(GameUser player, int diceResult) {
-        int targetNodeId = (player.getCurrentNode().getId() + diceResult - 1) % 16 + 1;
+        int targetNodeId = (player.getCurrentNode().getId() + diceResult) % 16;
         return findNodeById(targetNodeId);
     }
 
@@ -169,63 +169,28 @@ public class MainMapView extends JPanel implements Runnable {
             planetImages[i] = resizeImage(img, 70, 70);
         }
 
-        // 노드 index 0~4
-        for (int row = 0; row < gridCount; row++) {
-            for (int col = 0; col < gridCount; col++) {
-                int index = row * gridCount + col;
-                if (index < 5) {
-                    int x = startX + col * (gridSize + gap);
-                    int y = startY + row * (gridSize + gap);
-                    //g.drawImage(planetImages[index], x, y, gridSize, gridSize, null);
-                    nodes.add(new PlanetNode(index + 1, x, y, planetImages[index], coinInfo[index]));
-                }
-            }
-        }
-
-        // 노드 index 5 ~ 10
-        int index = 5;
-        for (int row = 1; row < 4; row++) {
-            for (int col = 0; col < 2; col++) {
-                if (index % 2 == 1) {
-                    int x = startX;
-                    int y = startY + row * (gridSize + gap);
-                    //g.drawImage(planetImages[index], x, y, gridSize, gridSize, null);
-                    nodes.add(new PlanetNode(index + 1, x, y, planetImages[index], coinInfo[index]));
-                } else {
-                    int x = startX + 4 * (gridSize + gap);
-                    int y = startY + row * (gridSize + gap);
-                    //g.drawImage(planetImages[index], x, y, gridSize, gridSize, null);
-                    nodes.add(new PlanetNode(index + 1, x, y, planetImages[index], coinInfo[index]));
-                }
-                index++;
-            }
-        }
-
-        // 노드 index 11~15
-        int dist = 0;
-        for (int col = 11; col < 16; col++) {
-            int x = startX + dist++ * (gridSize + gap);
-            int y = startY + 4 * (gridSize + gap);
-            //g.drawImage(planetImages[col], x, y, gridSize, gridSize, null);
-            nodes.add(new PlanetNode(col + 1, x, y, planetImages[0 + (col - 10)], coinInfo[index]));
-        }
-
-        // 노드 넘버링 수정
-        nodes.get(5).setId(16);
-        nodes.get(7).setId(15);
-        nodes.get(9).setId(14);
-        nodes.get(11).setId(13);
-        nodes.get(13).setId(11);
-        nodes.get(14).setId(10);
-        nodes.get(15).setId(9);
-        nodes.get(10).setId(8);
-        nodes.get(8).setId(7);
-
+        // 노드 생성
+        nodes.add(new PlanetNode(1, 125, 125, planetImages[0], coinInfo[0]));
+        nodes.add(new PlanetNode(2, 245, 125, planetImages[1], coinInfo[1]));
+        nodes.add(new PlanetNode(3, 365, 125, planetImages[2], coinInfo[2]));
+        nodes.add(new PlanetNode(4, 485, 125, planetImages[3], coinInfo[3]));
+        nodes.add(new PlanetNode(5, 605, 125, planetImages[4], coinInfo[4]));
+        nodes.add(new PlanetNode(6, 605, 245, planetImages[5], coinInfo[5]));
+        nodes.add(new PlanetNode(7, 605, 365, planetImages[6], coinInfo[6]));
+        nodes.add(new PlanetNode(8, 605, 485, planetImages[7], coinInfo[7]));
+        nodes.add(new PlanetNode(9, 605, 605, planetImages[8], coinInfo[8]));
+        nodes.add(new PlanetNode(10, 485, 605, planetImages[9], coinInfo[9]));
+        nodes.add(new PlanetNode(11, 365, 605, planetImages[10], coinInfo[10]));
+        nodes.add(new PlanetNode(12, 245, 605, planetImages[11], coinInfo[11]));
+        nodes.add(new PlanetNode(13, 125, 605, planetImages[12], coinInfo[12]));
+        nodes.add(new PlanetNode(14, 125, 485, planetImages[13], coinInfo[13]));
+        nodes.add(new PlanetNode(15, 125, 365, planetImages[14], coinInfo[14]));
+        nodes.add(new PlanetNode(16, 125, 245, planetImages[15], coinInfo[15]));
 
         // 플레이어별 이미지 설정 및 현재 노드 초기화 (플레이어 수: 3)
         for (int i = 0; i < 3; i++) {
             GameUser u = users.get(i);
-            PlanetNode node = nodes.get(i);
+            PlanetNode node = nodes.get(0);
             String imagePath = playerImgPath + (i + 1) + ".png";
             Image image = tk.getImage(imagePath);
             playerImages[i] = resizeImage(image, 64, 64);
