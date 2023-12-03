@@ -4,6 +4,7 @@ import client.main.member.Member;
 import client.main.object.Item;
 import client.main.object.PlanetNode;
 
+import javax.swing.*;
 import java.awt.*;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class GameUser {
     public GameUser(Member member) {
         this.member = member;
         this.nickName = member.getNickName();
+        this.userItems = new ArrayList<>();
         posX = initialX;
         posY = initialY;
     }
@@ -197,12 +199,44 @@ public class GameUser {
         this.userItems.add(item);
     }
 
+    public ArrayList<Item> getUserItems() {
+        return userItems;
+    }
+
     public void removeUserItem(Item item){
         this.userItems.remove(item);
     }
 
-    public ArrayList<Item> getUserItems(){
-        return userItems;
+    // 보유 아이템 사용
+    public void useItem(Item selectedItem) {
+        if (userItems.contains(selectedItem)) {
+            // 아이템 사용 로직 추가
+            System.out.println("아이템을 사용했습니다: " + selectedItem.getItemName());
+
+            // 사용 후 아이템 제거
+            userItems.remove(selectedItem);
+        } else {
+            System.out.println("보유한 아이템이 아닙니다.");
+        }
+    }
+
+    // 보유 아이템 팝업 창
+    public void showUserItems() {
+        // 팝업 창으로 보유 아이템 목록 표시
+        String[] itemOptions = new String[userItems.size()];
+        for (int i = 0; i < userItems.size(); i++) {
+            itemOptions[i] = userItems.get(i).getItemName();
+        }
+
+        // 아이템 선택 팝업 창
+        int choice = JOptionPane.showOptionDialog(null, "사용할 아이템을 선택하세요.", "아이템 목록",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, itemOptions, null);
+
+        // 사용자가 창을 닫았을 때 -1 반환
+        if (choice != -1) {
+            Item selectedItem = userItems.get(choice);
+            useItem(selectedItem);
+        }
     }
 
     /*

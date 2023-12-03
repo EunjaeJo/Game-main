@@ -11,8 +11,8 @@ public class Store extends JFrame {
 
     public Store(GameUser user) {
         items = new ArrayList<>();
-        Item doubleCoin = new Item(3, "모 아니면 도", "코인 두 배"); // 명칭 변경
-        Item fiveNodeMore = new Item(5, "부스터", "5칸 추가 이동");
+        Item doubleCoin = new Item(3, "모 아니면 도", "5코인"); // 명칭 변경
+        Item fiveNodeMore = new Item(5, "부스터", "3코인");
         items.add(doubleCoin);
         items.add(fiveNodeMore);
 
@@ -22,17 +22,17 @@ public class Store extends JFrame {
 
         // 구매하기
         if (choice == 0) {
-            if (user.getCoin() > 2) {
+            if (user.getCoin() != 0) {
                 user.addUserItem(doubleCoin);
-                user.setCoin(user.getCoin() - 3);
+                user.addCoin(-5);
                 System.out.println(user.getCoin());
             } else {
                 JOptionPane.showMessageDialog(null, "코인이 부족합니다.");
             }
         } else {
-            if (user.getCoin() > 4) {
+            if (user.getCoin() != 0) {
                 user.addUserItem(fiveNodeMore);
-                user.setCoin(user.getCoin() - 5);
+                user.addCoin(-3);
                 System.out.println(user.getCoin());
             } else {
                 JOptionPane.showMessageDialog(null, "코인이 부족합니다.");

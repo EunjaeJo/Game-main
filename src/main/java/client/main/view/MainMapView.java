@@ -100,6 +100,9 @@ public class MainMapView extends JPanel implements Runnable {
                 if (currentIndex == nonTargetNodes.size() - 1) {
                     ((Timer) e.getSource()).stop();
                     player.moveToNode(targetNode);
+                    // 도착 노드가 상점이면 상점 실행
+                    if (targetNode == nodes.get(9))
+                        store = new Store(player);
                     // 노드에 따른 플레이어 코인 처리
                     player.addCoin(targetNode.getCoin());
                     repaint();
@@ -143,8 +146,7 @@ public class MainMapView extends JPanel implements Runnable {
         int diceResult = dice.getDiceResult();
         PlanetNode targetNode = calculateTargetNode(player, diceResult);
         moveNoneTargetNodes(player, targetNode);
-        if (targetNode == nodes.get(9))
-            store = new Store(player);
+        player.addCoin(10); // 테스트용 - 코인 많이..
         // 플레이어 코인 처리 테스트
         System.out.println("플레이어 코인 수: " + player.getCoin());
     }
@@ -300,6 +302,10 @@ public class MainMapView extends JPanel implements Runnable {
         repaint();
         g.drawImage(dice.getImage(), 370, 370, 64, 64, this); // 주사위 그림
         g.drawImage(sun.getImg(), sun.getPosX(), sun.getPosY(), this); // 태양 그림
+
+//        // 주사위 굴리기 전에 아이템 확인
+//        if (turnPlayer.getUserItems().size() > 0)
+//            turnPlayer.showUserItems();
 
     }
 

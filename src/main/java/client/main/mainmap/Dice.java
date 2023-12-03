@@ -50,7 +50,8 @@ public class Dice extends JPanel {
 
 
     public void rollDice() {
-        int diceResult = (int) (Math.random() * 6) + 1;
+         int diceResult = (int) (Math.random() * 6) + 1;
+//        int diceResult = 1; // 테스트용 1만 나옴
         currentDiceResult = diceResult;
         repaint(); // 이미지 변경을 화면에 즉시 반영하기 위해 repaint() 호출
     }
