@@ -5,6 +5,7 @@ import client.main.GameUser;
 import client.main.mainmap.Dice;
 import client.main.member.Member;
 import client.main.object.PlanetNode;
+import client.main.object.Store;
 import client.main.object.Sun;
 
 import javax.swing.*;
@@ -30,9 +31,11 @@ public class MainMapView extends JPanel implements Runnable {
 
     Dice dice; // 주사위 객체
     Sun sun; // 태양 객체
+    Store store; // 상점 객체
     Member member; // 멤버 정보 받아오기
     GameUser user; // 플레이어 정보 받아오기
     Thread th; // KeyAdapter 쓰레드
+    int checkTurn = 0; // 턴 수 체크. 주사위 세 번 굴려지면 한 턴
     boolean checkExit; // JFrame 종료 여부
 
     // 이미지를 불러오는 역할 , 더블 버퍼.
@@ -51,7 +54,7 @@ public class MainMapView extends JPanel implements Runnable {
     ArrayList<PlanetNode> nodes = new ArrayList<>();
 
     // 각 노드별 코인 정보 저장 배열
-    int[] coinInfo = {3, -3, 3, 3, -3, 3, 3, 3, -3, 0, 3, 3, -3, 3, -3, 3};
+    int[] coinInfo = {3, 3, 3, 3, -3, -3, 3, -3, -3, 0, 3, 3, 3, -3, -3, 3};
 
     GameRoom room;
     ArrayList<GameUser> users = new ArrayList<>();
@@ -62,7 +65,6 @@ public class MainMapView extends JPanel implements Runnable {
     /**
      * 플레이어 노드 처리 메서드들 (시작)
      */
-
     // 주사위 결과에 따라 이동할 타겟 노드 계산
     private PlanetNode calculateTargetNode(GameUser player, int diceResult) {
         int targetNodeId = (player.getCurrentNode().getId() + diceResult) % 16;
@@ -90,13 +92,16 @@ public class MainMapView extends JPanel implements Runnable {
                 player.moveToNode(nonTargetNodes.get(currentIndex));
                 repaint();
                 if (nonTargetNodes.get(currentIndex).isSun() == true)
-                    if (sun.buySun(player) == 1)
+                    if (sun.buySun(player) == 1) {
+                        nonTargetNodes.get(currentIndex).setSun(false);
                         createSun();
-
+                    }
 
                 if (currentIndex == nonTargetNodes.size() - 1) {
                     ((Timer) e.getSource()).stop();
                     player.moveToNode(targetNode);
+                    // 노드에 따른 플레이어 코인 처리
+                    player.addCoin(targetNode.getCoin());
                     repaint();
                 } else {
                     currentIndex++;
@@ -138,10 +143,8 @@ public class MainMapView extends JPanel implements Runnable {
         int diceResult = dice.getDiceResult();
         PlanetNode targetNode = calculateTargetNode(player, diceResult);
         moveNoneTargetNodes(player, targetNode);
-        // 태양 노드인지 확인
-
-        // 노드에 따른 플레이어 코인 처리
-        player.addCoin(targetNode.getCoin());
+        if (targetNode == nodes.get(9))
+            store = new Store(player);
         // 플레이어 코인 처리 테스트
         System.out.println("플레이어 코인 수: " + player.getCoin());
     }
@@ -172,7 +175,6 @@ public class MainMapView extends JPanel implements Runnable {
         repaint();
     }
 
-
     /**
      * 생성자 함수
      */
@@ -188,7 +190,6 @@ public class MainMapView extends JPanel implements Runnable {
         // (테스트) 임의의 현재 플레이어: users의 첫 번째 플레이어
         turnPlayer = users.get(0);
         turnInfo.put(0, 0);
-
 
         //플레이어 키 입력 스레드
 //        KeyControl key = new KeyControl(turnPlayer, this);
@@ -266,6 +267,9 @@ public class MainMapView extends JPanel implements Runnable {
 
                         // 주사위 멈춘 후 주사위 결과에 따라 플레이어 이동 처리
                         handleMoveToNode(turnPlayer);
+
+                        // 턴 수 +1
+                        checkTurn += 1;
                     }
                 });
                 stopTimer.setRepeats(false); // 타이머 한 번만 실행
@@ -304,7 +308,12 @@ public class MainMapView extends JPanel implements Runnable {
         drawBackground(g);
         drawNodes(g);
         drawGameUsers(g);
-//        drawSun(g);
+        // 각 모서리에 120x120 크기의 점수판 그리기
+        int boardSize = 100;
+        int padding = 6;
+        drawScoreBoard(g, users.get(0), 0, 0, boardSize, boardSize);
+        drawScoreBoard(g, users.get(1), getWidth() - boardSize - padding, 0, boardSize, boardSize);
+        drawScoreBoard(g, users.get(2), 0, getHeight() - boardSize - padding, boardSize, boardSize);
     }
 
     private void drawGameUsers(Graphics g) {
@@ -326,13 +335,23 @@ public class MainMapView extends JPanel implements Runnable {
         buffG.drawImage(background, 0, 0, this);
     }
 
-    private void drawSun(Graphics g) {
-        // sun 객체가 존재하는 경우에만 태양을 그린다.
-        if (sun != null) {
-            buffG.drawImage(sun.getImg(), sun.getPosX(), sun.getPosY(), this);
-        }
-    }
+    // 점수판 그리기
+    private void drawScoreBoard(Graphics g, GameUser user, int x, int y, int width, int height) {
+        g.setColor(Color.BLACK);
+        g.fillRect(x, y, width, height);
+        g.setColor(Color.WHITE);
+        g.drawRect(x, y, width, height);
 
+        // 유저 정보 표시
+        String nickname = user.getNickName();
+        int coin = user.getCoin();
+        int sun = user.getSun();
+        Font f = new Font(Font.SANS_SERIF,Font.BOLD,15);
+        g.setFont(f);
+        g.drawString(nickname, x + 10, y + 30);
+        g.drawString("코인: " + coin, x + 10, y + 60);
+        g.drawString("태양: " + sun, x + 10, y + 90);
+    }
 
     @Override
     public void run() {
@@ -351,5 +370,4 @@ public class MainMapView extends JPanel implements Runnable {
             }
         }
     }
-
 }

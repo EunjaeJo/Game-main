@@ -20,9 +20,9 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // 테스트용 객체 생성
-        Member m1 = new Member("a", "a", "a");
-        Member m2 = new Member("b", "a", "b");
-        Member m3 = new Member("c", "a", "c");
+        Member m1 = new Member("a", "a", "팽도리");
+        Member m2 = new Member("b", "a", "이상해씨");
+        Member m3 = new Member("c", "a", "파이리");
 //        Member m4 = new Member("d", "a", "d");
         GameUser g1 = new GameUser(m1);
         GameUser g2 = new GameUser(m2);

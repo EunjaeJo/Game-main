@@ -29,8 +29,8 @@ public class Sun extends Unit {
         if (choice == JOptionPane.YES_OPTION) {
             if (player.getCoin() >= 10) {
                 // 태양을 구매할 경우
-                player.addCoin(-10);
-                // 추가 구현: 태양 구매에 따른 동작 수행
+                player.addCoin(-10); // 코인 차감
+                player.addSun(); // 태양 획득
                 System.out.println("태양을 구매하였습니다.");
                 return 1;
             } else {

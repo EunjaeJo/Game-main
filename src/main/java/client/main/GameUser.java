@@ -1,10 +1,12 @@
 package client.main;
 
 import client.main.member.Member;
+import client.main.object.Item;
 import client.main.object.PlanetNode;
 
 import java.awt.*;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class GameUser {
     private int id;
@@ -23,6 +25,8 @@ public class GameUser {
     private int sun = 0; // 보유 태양 수
 
     private PlanetNode currentNode; // 현재 노드 위치
+    private int miniGameScore; // 미니게임 점수
+    private ArrayList<Item> userItems; // 보유 아이템
 
     public GameUser(Member member) {
         this.member = member;
@@ -126,9 +130,9 @@ public class GameUser {
 
     // 코인 변경
     public void addCoin(int coin) {
+        this.coin += coin;
         if (this.coin == 0)
             this.coin = 0;
-        this.coin += coin;
     }
 
     public int getSun() {
@@ -177,6 +181,28 @@ public class GameUser {
 
     public void setImg(Image img) {
         this.img = img;
+    }
+
+    // get 미니게임 점수
+    public int getMiniGameScore(){
+        return miniGameScore;
+    }
+
+    // set 미니게임 점수
+    public void setMiniGameScore(int miniGameScore){
+        this.miniGameScore = miniGameScore;
+    }
+
+    public void addUserItem(Item item){
+        this.userItems.add(item);
+    }
+
+    public void removeUserItem(Item item){
+        this.userItems.remove(item);
+    }
+
+    public ArrayList<Item> getUserItems(){
+        return userItems;
     }
 
     /*
