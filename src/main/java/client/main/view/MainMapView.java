@@ -5,6 +5,7 @@ import client.main.GameUser;
 import client.main.mainmap.Dice;
 import client.main.member.Member;
 import client.main.object.PlanetNode;
+import client.main.object.Sun;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,8 +14,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 public class MainMapView extends JPanel implements Runnable {
 
@@ -26,7 +28,8 @@ public class MainMapView extends JPanel implements Runnable {
     int gridCount = 5;  // 격자의 행과 열 개수
     int gap = 50;       // 이미지 간격
 
-    Dice dice; // 주사위 객체 생성
+    Dice dice; // 주사위 객체
+    Sun sun; // 태양 객체
     Member member; // 멤버 정보 받아오기
     GameUser user; // 플레이어 정보 받아오기
     Thread th; // KeyAdapter 쓰레드
@@ -46,14 +49,19 @@ public class MainMapView extends JPanel implements Runnable {
     Image background = background_.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
 
     ArrayList<PlanetNode> nodes = new ArrayList<>();
+
     // 각 노드별 코인 정보 저장 배열
-    int[] coinInfo = {3, -3, 3, 3, -3, 3, 3, 3, -3, 3, 3, 3, -3, 3, -3, 3};
+    int[] coinInfo = {3, -3, 3, 3, -3, 3, 3, 3, -3, 0, 3, 3, -3, 3, -3, 3};
 
     GameRoom room;
     ArrayList<GameUser> users = new ArrayList<>();
 
     GameUser turnPlayer; //현재 자신의 차례인 플레이어
     HashMap<Integer, Integer> turnInfo = new HashMap<>(); // key : 현재 턴 값 value : 해당 턴 주사위 던진 플레이어 수
+
+    /**
+     * 플레이어 노드 처리 메서드들 (시작)
+     */
 
     // 주사위 결과에 따라 이동할 타겟 노드 계산
     private PlanetNode calculateTargetNode(GameUser player, int diceResult) {
@@ -71,7 +79,7 @@ public class MainMapView extends JPanel implements Runnable {
         return null;
     }
 
-    // while 타겟 노드가 아닌 동안 중간 노드로 이동 -> repaint 메서드 짜기 (이동 모션)
+    // 타겟 노드가 아닌 동안 중간 노드 밟고 이동 -> repaint 메서드 짜기 (이동 모션)
     public void moveNoneTargetNodes(GameUser player, PlanetNode targetNode) {
         List<PlanetNode> nonTargetNodes = getNonTargetNodes(player.getCurrentNode(), targetNode);
         currentIndex = 0;
@@ -81,6 +89,10 @@ public class MainMapView extends JPanel implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 player.moveToNode(nonTargetNodes.get(currentIndex));
                 repaint();
+                if (nonTargetNodes.get(currentIndex).isSun() == true)
+                    if (sun.buySun(player) == 1)
+                        createSun();
+
 
                 if (currentIndex == nonTargetNodes.size() - 1) {
                     ((Timer) e.getSource()).stop();
@@ -126,6 +138,38 @@ public class MainMapView extends JPanel implements Runnable {
         int diceResult = dice.getDiceResult();
         PlanetNode targetNode = calculateTargetNode(player, diceResult);
         moveNoneTargetNodes(player, targetNode);
+        // 태양 노드인지 확인
+
+        // 노드에 따른 플레이어 코인 처리
+        player.addCoin(targetNode.getCoin());
+        // 플레이어 코인 처리 테스트
+        System.out.println("플레이어 코인 수: " + player.getCoin());
+    }
+    /**
+     * 플레이어 노드 처리 메서드들 (끝)
+     */
+
+    // 랜덤 노드에 태양 생성
+    public void createSun() {
+        // nodes 리스트가 비어있으면 아무 작업도 수행하지 않음
+        if (nodes == null || nodes.isEmpty()) {
+            System.out.println("태양 생성 불가");
+            return;
+        }
+
+        // Random 객체 생성
+        Random random = new Random(System.currentTimeMillis());
+
+        // nodes 리스트에서 랜덤한 인덱스 선택
+        int randomIndex = random.nextInt(nodes.size());
+
+        // 선택된 노드로 Sun 생성
+        PlanetNode randomNode = nodes.get(randomIndex);
+        sun = new Sun(randomNode);
+
+        sun.setImg(resizeImage(sun.getImg(), 32, 32));
+        System.out.println("태양 생성 노드: " + randomNode.getId());
+        repaint();
     }
 
 
@@ -198,11 +242,13 @@ public class MainMapView extends JPanel implements Runnable {
             u.setCurrentNode(node); // 현재 노드 첫 번째 노드로 초기화
         }
 
+        // 랜덤 위치 노드에 태양 생성
+        createSun();
 
-//         // 마우스 이벤트 리스너
-//        addMouseListener(mouse);
-
-// 주사위 패널 생성 및 설정
+        /**
+         * 주사위 굴리기
+         */
+        // 주사위 패널 생성 및 설정
         dice = new Dice();
 
         addMouseListener(new MouseAdapter() {
@@ -246,8 +292,10 @@ public class MainMapView extends JPanel implements Runnable {
         if (turnInfo.size() >= 17 && turnInfo.get(16) >= 4) {
             return;
         }
+
         repaint();
         g.drawImage(dice.getImage(), 370, 370, 64, 64, this); // 주사위 그림
+        g.drawImage(sun.getImg(), sun.getPosX(), sun.getPosY(), this); // 태양 그림
 
     }
 
@@ -256,6 +304,7 @@ public class MainMapView extends JPanel implements Runnable {
         drawBackground(g);
         drawNodes(g);
         drawGameUsers(g);
+//        drawSun(g);
     }
 
     private void drawGameUsers(Graphics g) {
@@ -276,6 +325,14 @@ public class MainMapView extends JPanel implements Runnable {
         buffG.clearRect(0, 0, frameWidth, frameHeight);
         buffG.drawImage(background, 0, 0, this);
     }
+
+    private void drawSun(Graphics g) {
+        // sun 객체가 존재하는 경우에만 태양을 그린다.
+        if (sun != null) {
+            buffG.drawImage(sun.getImg(), sun.getPosX(), sun.getPosY(), this);
+        }
+    }
+
 
     @Override
     public void run() {

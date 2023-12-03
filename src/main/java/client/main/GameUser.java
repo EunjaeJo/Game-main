@@ -19,8 +19,8 @@ public class GameUser {
     private int initialX = 125;
     private int initialY = 125;
     private int width, height = 64;
-    private int coin;
-    private int sun;
+    private int coin = 0; // 보유 코인 수
+    private int sun = 0; // 보유 태양 수
 
     private PlanetNode currentNode; // 현재 노드 위치
 
@@ -60,30 +60,27 @@ public class GameUser {
     /**
      * 노드 이동 처리
      */
-    // 현재 노드 위치
+    // get 현재 노드 위치
     public PlanetNode getCurrentNode() {
         return currentNode;
     }
 
+    // set 현재 노드 위치
     public void setCurrentNode(PlanetNode node) {
         this.currentNode = node;
     }
 
+    // set 캐릭터 현재 좌표
     public void setCurrentPosition(int x, int y) {
         this.posX = x;
         this.posY = y;
     }
 
-    // 노드 이동: 타겟 노드로 직접 이동
+    // 노드 이동: 타겟 노드로 직접(한번에) 이동
     public void moveToNode(PlanetNode targetNode) {
         setCurrentNode(targetNode);
         setCurrentPosition(targetNode.getPosX(), targetNode.getPosY());
     }
-
-//    // 노드를 지나가는 애니메이션을 호출하는 메서드
-//    public void moveNodeAnimated(PlanetNode targetNode, int animationDuration) {
-//        targetNode.moveToNodeAnimation(this, animationDuration);
-//    }
 
     public int getId() {
         return id;
@@ -125,15 +122,22 @@ public class GameUser {
 
     public void setCoin(int coin) {
         this.coin = coin;
+    } // 코인 설정
+
+    // 코인 변경
+    public void addCoin(int coin) {
+        if (this.coin == 0)
+            this.coin = 0;
+        this.coin += coin;
     }
 
     public int getSun() {
         return sun;
     }
 
-    public void setSun(int sun) {
-        this.sun = sun;
-    }
+    public void addSun() {
+        this.sun += 1;
+    } // 태양 구매 시 업데이트
 
     public int getPosX() {
         return posX;
