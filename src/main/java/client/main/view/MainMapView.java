@@ -81,7 +81,7 @@ public class MainMapView extends JPanel implements Runnable {
         return null;
     }
 
-    // 타겟 노드가 아닌 동안 중간 노드 밟고 이동 -> repaint 메서드 짜기 (이동 모션)
+    // 타겟 노드가 아닌 동안 중간 노드 밟고 이동 -> repaint 메서드 (이동 모션)
     public void moveNoneTargetNodes(GameUser player, PlanetNode targetNode) {
         List<PlanetNode> nonTargetNodes = getNonTargetNodes(player.getCurrentNode(), targetNode);
         currentIndex = 0;
@@ -91,15 +91,18 @@ public class MainMapView extends JPanel implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 player.moveToNode(nonTargetNodes.get(currentIndex));
                 repaint();
+                // 태양 존재 검사
                 if (nonTargetNodes.get(currentIndex).isSun() == true)
+                    // 노드 위 플레이어가 태양 구매
                     if (sun.buySun(player) == 1) {
-                        nonTargetNodes.get(currentIndex).setSun(false);
-                        createSun();
+                        nonTargetNodes.get(currentIndex).setSun(false); // 노드 위 태양 제거
+                        createSun(); // 다른 노드에 태양 생성
                     }
 
                 if (currentIndex == nonTargetNodes.size() - 1) {
                     ((Timer) e.getSource()).stop();
                     player.moveToNode(targetNode);
+
                     // 도착 노드가 상점이면 상점 실행
                     if (targetNode == nodes.get(9))
                         store = new Store(player);
@@ -145,10 +148,13 @@ public class MainMapView extends JPanel implements Runnable {
     public void handleMoveToNode(GameUser player) {
         int diceResult = dice.getDiceResult();
         PlanetNode targetNode = calculateTargetNode(player, diceResult);
+        // 아이템 사용 여부 체크
+        if (player.isUseItem()) {
+            if (player.useItem(targetNode) != 1)
+                targetNode = calculateTargetNode(player, diceResult + 3);
+            player.endUseItem();
+        }
         moveNoneTargetNodes(player, targetNode);
-        player.addCoin(10); // 테스트용 - 코인 많이..
-        // 플레이어 코인 처리 테스트
-        System.out.println("플레이어 코인 수: " + player.getCoin());
     }
     /**
      * 플레이어 노드 처리 메서드들 (끝)
@@ -170,7 +176,9 @@ public class MainMapView extends JPanel implements Runnable {
 
         // 선택된 노드로 Sun 생성
         PlanetNode randomNode = nodes.get(randomIndex);
+//        randomNode = nodes.get(5); // 테스트용
         sun = new Sun(randomNode);
+
 
         sun.setImg(resizeImage(sun.getImg(), 32, 32));
         System.out.println("태양 생성 노드: " + randomNode.getId());
@@ -281,6 +289,16 @@ public class MainMapView extends JPanel implements Runnable {
         dice.setBounds(370, 370, 64, 64);
         add(dice);
 
+
+        // 테스트(테스트2,3) 임의로 코인 설정
+        turnPlayer.addCoin(12);
+        moveNoneTargetNodes(turnPlayer, nodes.get(7));
+//        users.get(1).addCoin(3);
+//        users.get(1).addSun();
+//        users.get(1).setCurrentPosition(365, 125);
+//        users.get(2).addCoin(6);
+//        users.get(2).setCurrentPosition(125, 605);
+
     }
 
     // 이미지 크기 조절 메서드
@@ -294,6 +312,11 @@ public class MainMapView extends JPanel implements Runnable {
         buffImg = createImage(getWidth(), getHeight());
         buffG = buffImg.getGraphics();
         update(buffG);
+
+        // 주사위 굴리기 전에 아이템 확인
+        if (turnPlayer.getUserItems().size() > 0)
+            turnPlayer.showUserItems();
+
         g.drawImage(buffImg, 0, 0, this);
         if (turnInfo.size() >= 17 && turnInfo.get(16) >= 4) {
             return;
@@ -303,9 +326,7 @@ public class MainMapView extends JPanel implements Runnable {
         g.drawImage(dice.getImage(), 370, 370, 64, 64, this); // 주사위 그림
         g.drawImage(sun.getImg(), sun.getPosX(), sun.getPosY(), this); // 태양 그림
 
-//        // 주사위 굴리기 전에 아이템 확인
-//        if (turnPlayer.getUserItems().size() > 0)
-//            turnPlayer.showUserItems();
+
 
     }
 

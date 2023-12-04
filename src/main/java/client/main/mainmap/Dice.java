@@ -29,7 +29,7 @@ public class Dice extends JPanel {
             diceIcons[i] = imageIcon;
         }
 
-        // 타이머 초기화
+        // 주사위 이미지 변경 타이머
         rollTimer = new Timer(100, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -48,12 +48,11 @@ public class Dice extends JPanel {
         return diceIcons[index].getImage();
     }
 
-
+    // 주사위 굴리기
     public void rollDice() {
-         int diceResult = (int) (Math.random() * 6) + 1;
-//        int diceResult = 1; // 테스트용 1만 나옴
-        currentDiceResult = diceResult;
-        repaint(); // 이미지 변경을 화면에 즉시 반영하기 위해 repaint() 호출
+         int diceResult = (int) (Math.random() * 6) + 1; // 1~6 랜덤 정수 값
+        currentDiceResult = diceResult; // 현재 주사위 값에 할당
+        repaint(); // 이미지 변화 화면 반영
     }
 
     public void startRolling() {
@@ -62,7 +61,7 @@ public class Dice extends JPanel {
 
     public void stopRolling() {
         rollTimer.stop();
-        repaint(); // 이미지 변경을 화면에 즉시 반영하기 위해 repaint() 호출
+        repaint();
         System.out.println("주사위 멈춤. 결과: " + currentDiceResult);
     }
 
