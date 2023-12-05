@@ -50,7 +50,8 @@ public class Dice extends JPanel {
 
     // 주사위 굴리기
     public void rollDice() {
-         int diceResult = (int) (Math.random() * 6) + 1; // 1~6 랜덤 정수 값
+//         int diceResult = (int) (Math.random() * 6) + 1; // 1~6 랜덤 정수 값
+        int diceResult = 3; // (테스트용) 임의의 주사위 값
         currentDiceResult = diceResult; // 현재 주사위 값에 할당
         repaint(); // 이미지 변화 화면 반영
     }

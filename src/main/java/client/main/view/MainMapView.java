@@ -67,7 +67,7 @@ public class MainMapView extends JPanel implements Runnable {
      */
     // 주사위 결과에 따라 이동할 타겟 노드 계산
     private PlanetNode calculateTargetNode(GameUser player, int diceResult) {
-        int targetNodeId = (player.getCurrentNode().getId() + diceResult) % 16;
+        int targetNodeId = (player.getCurrentNode().getId() + diceResult) % 17;
         return findNodeById(targetNodeId);
     }
 
@@ -90,6 +90,7 @@ public class MainMapView extends JPanel implements Runnable {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveToNode(nonTargetNodes.get(currentIndex));
+                System.out.println("현재 노드 ID: " + nonTargetNodes.get(currentIndex).getId()); // (테스트용) 노드 id 찍어보기
                 repaint();
                 // 태양 존재 검사
                 if (nonTargetNodes.get(currentIndex).isSun() == true)
@@ -102,6 +103,7 @@ public class MainMapView extends JPanel implements Runnable {
                 if (currentIndex == nonTargetNodes.size() - 1) {
                     ((Timer) e.getSource()).stop();
                     player.moveToNode(targetNode);
+                    System.out.println("현재 노드 id: " + targetNode.getId()); // (테스트용) 노드 id 찍어보기
 
                     // 도착 노드가 상점이면 상점 실행
                     if (targetNode == nodes.get(9))
@@ -156,6 +158,7 @@ public class MainMapView extends JPanel implements Runnable {
         }
         moveNoneTargetNodes(player, targetNode);
     }
+
     /**
      * 플레이어 노드 처리 메서드들 (끝)
      */
@@ -200,11 +203,6 @@ public class MainMapView extends JPanel implements Runnable {
         // (테스트) 임의의 현재 플레이어: users의 첫 번째 플레이어
         turnPlayer = users.get(0);
         turnInfo.put(0, 0);
-
-        //플레이어 키 입력 스레드
-//        KeyControl key = new KeyControl(turnPlayer, this);
-//        th = new Thread(key);
-//        th.start();
 
         //플레이어 마우스 입력 스레드
         MouseControl mouse = new MouseControl(turnPlayer, this);
@@ -292,7 +290,7 @@ public class MainMapView extends JPanel implements Runnable {
 
         // 테스트(테스트2,3) 임의로 코인 설정
         turnPlayer.addCoin(12);
-        moveNoneTargetNodes(turnPlayer, nodes.get(7));
+//        moveNoneTargetNodes(turnPlayer, nodes.get(7));
 //        users.get(1).addCoin(3);
 //        users.get(1).addSun();
 //        users.get(1).setCurrentPosition(365, 125);
@@ -312,21 +310,20 @@ public class MainMapView extends JPanel implements Runnable {
         buffImg = createImage(getWidth(), getHeight());
         buffG = buffImg.getGraphics();
         update(buffG);
-
-        // 주사위 굴리기 전에 아이템 확인
-        if (turnPlayer.getUserItems().size() > 0)
-            turnPlayer.showUserItems();
-
         g.drawImage(buffImg, 0, 0, this);
         if (turnInfo.size() >= 17 && turnInfo.get(16) >= 4) {
             return;
         }
 
+        // 주사위 굴리기 전에 아이템 확인
+        if (turnPlayer.getUserItems().size() > 0 && turnPlayer.getItemSize() > 0) {
+            turnPlayer.decreaseItemSize();
+            turnPlayer.showUserItems();
+        }
+
         repaint();
         g.drawImage(dice.getImage(), 370, 370, 64, 64, this); // 주사위 그림
         g.drawImage(sun.getImg(), sun.getPosX(), sun.getPosY(), this); // 태양 그림
-
-
 
     }
 
@@ -373,7 +370,7 @@ public class MainMapView extends JPanel implements Runnable {
         String nickname = user.getNickName();
         int coin = user.getCoin();
         int sun = user.getSun();
-        Font f = new Font(Font.SANS_SERIF,Font.BOLD,15);
+        Font f = new Font(Font.SANS_SERIF, Font.BOLD, 15);
         g.setFont(f);
         g.drawString(nickname, x + 10, y + 30);
         g.drawString("코인: " + coin, x + 10, y + 60);

@@ -27,9 +27,10 @@ public class GameUser {
 
     private PlanetNode currentNode; // 현재 노드 위치
     private int miniGameScore; // 미니게임 점수
-    private ArrayList<Item> userItems; // 보유 아이템
+    private ArrayList<Item> userItems = null; // 보유 아이템
     private boolean isUseItem = false; // 아이템 사용할 턴인지
     private int useItemId = 0;
+    private int itemSize = 0; // 아이템 사용 턴에 아이템창 한 번만 뜨도록 처리
 
     public GameUser(Member member) {
         this.member = member;
@@ -213,15 +214,18 @@ public class GameUser {
     }
 
     public void addUserItem(Item item) {
+        itemSize++;
         this.userItems.add(item);
+    }
+
+    // 아이템 사용 턴에 아이템창 한 번만 뜨도록 처리
+    public int getItemSize() { return itemSize; }
+    public void decreaseItemSize() {
+        itemSize--;
     }
 
     public ArrayList<Item> getUserItems() {
         return userItems;
-    }
-
-    public void removeUserItem(Item item) {
-        this.userItems.remove(item);
     }
 
     // 보유 아이템 사용
@@ -245,10 +249,10 @@ public class GameUser {
             if (planetNode.getCoin() == 3) {
                 // 파란 노드 위면 3코인 추가 지급(두 배 효과)
                 coin += 3;
-                return 1; // 아이템 사용 성공
+                return 1; // 1번(모 아니면 도) 아이템 사용 성공
             }
         } else if (useItemId == 2) {
-            return 2;
+            return 2; // 2번(부스터) 아이템 사용 성공
         }
 
         // 사용 실패

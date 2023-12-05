@@ -1,7 +1,6 @@
 package client.main.object;
 
 import client.main.GameUser;
-
 import javax.swing.*;
 import java.util.ArrayList;
 
