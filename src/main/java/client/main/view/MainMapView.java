@@ -284,13 +284,12 @@ public class MainMapView extends JPanel implements Runnable {
                 stopTimer.start();
             }
         });
-        dice.setBounds(370, 370, 64, 64);
+        dice.setBounds(370, 370, 64, 64); // 주사위 위치 설정
         add(dice);
 
 
         // 테스트(테스트2,3) 임의로 코인 설정
         turnPlayer.addCoin(12);
-//        moveNoneTargetNodes(turnPlayer, nodes.get(7));
 //        users.get(1).addCoin(3);
 //        users.get(1).addSun();
 //        users.get(1).setCurrentPosition(365, 125);
