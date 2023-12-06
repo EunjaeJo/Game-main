@@ -1,25 +1,53 @@
 package client.main.object;
 
-import java.util.Random;
+import java.awt.*;
 
-public class PlanetNode extends Unit{
+public class PlanetNode extends Unit {
     private int id;
-    private int coin; //해당 행성에 할당되는 코인 수
-    private int sun; //해당 행성에 할당되는 태양 수
-    private String name;
+    private int coin; // 해당 행성에 할당되는 코인 수
+    private boolean sun = false; // 해당 노드 태양 생성 여부
 
-    public PlanetNode(int id) {
+    public PlanetNode(int id, int x, int y, Image img, int coin) {
         this.id = id;
-        Random random = new Random();
-
-        if((Math.random()) <= 0.7) { // 70%의 확률로
-            this.sun = 0;
-            this.coin = (random.nextInt(5) + 1) * 10; // 10 ~ 50사이의 10의 배수인 정수값 할당
-        }
-
-        else { // 30%의 확률로
-            this.coin = 0;
-            this.sun = 1;
-        }
+        this.posX = x;
+        this.posY = y;
+        this.img = img;
+        this.coin = coin;
     }
+
+    public PlanetNode(int x, int y, Image img) {
+        this.posX = x;
+        this.posY = y;
+        this.img = img;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getCoin() {
+        return coin;
+    }
+
+    public int getX() {
+        return posX;
+    }
+
+    public int getY() {
+        return posY;
+    }
+
+    public void setSun(boolean change) { // 메인에서 랜덤 돌려서 나온 노드에 sun 위치시킴
+        sun = true;
+    }
+
+    public boolean isSun() {
+        return sun;
+    }
+
 }
+

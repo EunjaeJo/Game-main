@@ -1,19 +1,18 @@
 package client.main;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class RoomManager {
+public class RoomManager implements Serializable {
     private int id;
-    private static ArrayList<GameRoom> gameRooms;
-    private static AtomicInteger automicInteger;
-
-//    static {
-//        room
-//    }
+    private static HashMap<Integer, GameRoom> roomInfo = new HashMap<>();
+    private static ArrayList<GameRoom> gameRooms = new ArrayList<>();
+    private static ArrayList<Integer> roomCodes = new ArrayList<>();
+    private static AtomicInteger automicInteger = new AtomicInteger();
 
     public RoomManager() {
-
     }
 
     /**
@@ -22,8 +21,10 @@ public class RoomManager {
      */
     public static GameRoom createRoom() { // 빈 방을 새로 생성
         int roomId = automicInteger.incrementAndGet(); // room id 채번
-        GameRoom room = new GameRoom(roomId);
+        GameRoom room = new GameRoom(roomId, (int)(Math.random() * 89999) + 10000);
         gameRooms.add(room);
+        roomCodes.add(room.getRoomCode());
+        roomInfo.put(room.getRoomCode(), room);
         System.out.println("빈 방이 생성되었습니다!");
         return room;
     }
@@ -38,6 +39,8 @@ public class RoomManager {
 
         GameRoom room = new GameRoom(roomId, owner);
         gameRooms.add(room);
+        roomCodes.add(room.getRoomCode());
+        roomInfo.put(room.getRoomCode(), room);
 
         System.out.println("유저가 방을 만들었습니다! 해당 유저는 방장이 됩니다.");
 
@@ -54,6 +57,8 @@ public class RoomManager {
 
         GameRoom room = new GameRoom(roomId, users);
         gameRooms.add(room);
+        roomCodes.add(room.getRoomCode());
+        roomInfo.put(room.getRoomCode(), room);
 
         System.out.println("유저 리스트로 방을 생성했습니다!");
 
@@ -70,6 +75,36 @@ public class RoomManager {
         else{
             return null;
         }
+    }
+
+    /**
+     * 유저가 roomCode로 해당 (이미 생성된)gameRoom에 접속
+     * @param user, roomCode
+     */
+    public static boolean enterRoomByCode(GameUser user, int roomCode) {
+        if (roomInfo.containsKey(roomCode)) {
+            GameRoom r = roomInfo.get(roomCode);
+
+            if (r.getJoinNum() < 4) {
+                user.enterRoom(r);
+                return true;
+            }
+            else {
+                System.out.println(r.getJoinNum() + "인원 다 찼음");
+                return false; // 방에 인원이 다 찼으면 입장 불가
+            }
+        }
+        System.out.println("해당 코드인 게임방이 존재하지 않음");
+        return false; // 해당 코드인 게임방이 존재하지 않으면 false 반환
+    }
+
+    public static GameRoom getRoomByCode(int roomCode) {
+        if (roomInfo.containsKey(roomCode)) {
+            GameRoom r = roomInfo.get(roomCode);
+
+            return r;
+        }
+        return null;
     }
 
     /**
@@ -91,7 +126,27 @@ public class RoomManager {
     }
 
 
+    public static HashMap<Integer, GameRoom> getRoomInfo() {
+        return roomInfo;
+    }
 
+    public static void setRoomInfo(HashMap<Integer, GameRoom> roomInfo) {
+        RoomManager.roomInfo = roomInfo;
+    }
 
+    public static ArrayList<GameRoom> getGameRooms() {
+        return gameRooms;
+    }
 
+    public static void setGameRooms(ArrayList<GameRoom> gameRooms) {
+        RoomManager.gameRooms = gameRooms;
+    }
+
+    public static ArrayList<Integer> getRoomCodes() {
+        return roomCodes;
+    }
+
+    public static void setRoomCodes(ArrayList<Integer> roomCodes) {
+        RoomManager.roomCodes = roomCodes;
+    }
 }
